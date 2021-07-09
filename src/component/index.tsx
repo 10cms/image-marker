@@ -67,7 +67,7 @@ function ImageMaker({
     return () => {
       const image = imgDOM.current
       if (image) {
-        ;(image as HTMLElement).removeEventListener('wheel', handleMouseWheel)
+        image.removeEventListener('wheel', handleMouseWheel)
       }
     }
   }, [scale, currentImage])
@@ -79,11 +79,9 @@ function ImageMaker({
     const image = imgDOM.current
 
     if (image) {
-      ;(image as HTMLElement).style.maxWidth = (
-        image as HTMLElement
-      ).style.maxHeight = 'none'
-      ;(image as HTMLElement).style.width = `${currentImageWidth}px`
-      ;(image as HTMLElement).style.height = `${currentImageHeight}px`
+      image.style.maxWidth = image.style.maxHeight = 'none'
+      image.style.width = `${currentImageWidth}px`
+      image.style.height = `${currentImageHeight}px`
     }
 
     changePointPostion(currentPoint[0], currentPoint[1])
@@ -92,12 +90,8 @@ function ImageMaker({
   const initViewport = (width: string, height: string) => {
     const currentDiv = viewportDOM.current
     if (currentDiv) {
-      ;(currentDiv as HTMLImageElement).style.width = isNaN(+width)
-        ? width
-        : `${width}px`
-      ;(currentDiv as HTMLImageElement).style.height = isNaN(+height)
-        ? height
-        : `${height}px`
+      currentDiv.style.width = isNaN(+width) ? width : `${width}px`
+      currentDiv.style.height = isNaN(+height) ? height : `${height}px`
     }
   }
 
@@ -132,8 +126,8 @@ function ImageMaker({
     // 设置图片默认位置居中
     if (currentDiv) {
       const [viewPortWidth, viewPortHeight] = [
-        (currentDiv as HTMLElement).clientWidth,
-        (currentDiv as HTMLElement).clientHeight
+        currentDiv.clientWidth,
+        currentDiv.clientHeight
       ]
       const postion = [
         (viewPortWidth - wh.width) / 2,
@@ -187,8 +181,8 @@ function ImageMaker({
     let [viewPortWidth, viewPortHeight] = [0, 0]
     if (tempViewportDOM) {
       ;[viewPortWidth, viewPortHeight] = [
-        (tempViewportDOM as HTMLElement).clientWidth,
-        (tempViewportDOM as HTMLElement).clientHeight
+        tempViewportDOM.clientWidth,
+        tempViewportDOM.clientHeight
       ]
     }
 
@@ -233,8 +227,8 @@ function ImageMaker({
   const changePosition = (currentLeft: number, currentTop: number) => {
     const image = imgDOM.current
     if (image) {
-      ;(image as HTMLImageElement).style.top = `${currentTop}px`
-      ;(image as HTMLImageElement).style.left = `${currentLeft}px`
+      image.style.top = `${currentTop}px`
+      image.style.left = `${currentLeft}px`
     }
   }
   /**
@@ -246,15 +240,11 @@ function ImageMaker({
     const currentImageHeight = scale * imageHeight * currentTop
 
     if (point) {
-      const width = (point as HTMLDivElement).clientWidth / 2
-      const height = (point as HTMLDivElement).clientHeight / 2
+      const width = point.clientWidth / 2
+      const height = point.clientHeight / 2
 
-      ;(point as HTMLImageElement).style.top = `${
-        currentImage[1] + currentImageHeight - height
-      }px`
-      ;(point as HTMLImageElement).style.left = `${
-        currentImage[0] + currentImageWidth - width
-      }px`
+      point.style.top = `${currentImage[1] + currentImageHeight - height}px`
+      point.style.left = `${currentImage[0] + currentImageWidth - width}px`
     }
   }
 
@@ -419,10 +409,7 @@ function ImageMaker({
     if (image) {
       // minimum, maximum, rate
       // const { imageWidth: originWidth, imageHeight: originHeight, currentLeft, currentTop, scale: lastScale } = this.state
-      const imageWh = [
-        (image as HTMLElement).clientWidth,
-        (image as HTMLElement).clientHeight
-      ]
+      const imageWh = [image.clientWidth, image.clientHeight]
       const event = e.nativeEvent || e
       event.preventDefault()
 
