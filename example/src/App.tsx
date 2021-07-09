@@ -1,10 +1,11 @@
 import React from 'react'
 
-import ImageMaker from 'image-maker'
+import ImageMarker from 'image-marker'
 import img from './1.jpg'
-import 'image-maker/dist/index.css'
+import 'image-marker/dist/index.css'
 const App = () => {
-  return <ImageMaker src={img} renderPoint={<div>标记点</div>}></ImageMaker>
+  return <ImageMarker src={img} renderPoint={<div>标记点</div>}></ImageMarker>
 }
 
 export default App
+

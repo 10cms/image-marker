@@ -1,10 +1,10 @@
 {
-  "name": "image-maker",
+  "name": "image-marker",
   "version": "1.0.0",
-  "description": "Made with create-react-library",
+  "description": "react component for image marker ",
   "author": "",
   "license": "MIT",
-  "repository": "/image-maker",
+  "repository": "/image-marker",
   "main": "dist/index.js",
   "module": "dist/index.modern.js",
   "source": "src/index.tsx",

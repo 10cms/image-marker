@@ -1,7 +1,7 @@
-import ImageMaker from '.'
+import ImageMarker from '.'
 
-describe('ImageMaker', () => {
+describe('ImageMarker', () => {
   it('is truthy', () => {
-    expect(ImageMaker).toBeTruthy()
+    expect(ImageMarker).toBeTruthy()
   })
 })

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 
 import styles from '../styles.module.css'
-export interface ImageMakerProps {
+export interface ImageMarkerProps {
   width?: string // viewport 视口的宽度
   height?: string // viewport 视口的高度
   minimum?: number // 缩放的最小尺寸【零点几】
@@ -18,7 +18,7 @@ export interface WHProps {
   height: number
 }
 
-function ImageMaker({
+function ImageMarker({
   width = '600px',
   height = '400px',
   minimum = 0.8,
@@ -29,7 +29,7 @@ function ImageMaker({
   contain = true,
   cover,
   renderPoint
-}: ImageMakerProps) {
+}: ImageMarkerProps) {
   const [focuse, setFocuse] = useState(false) // 鼠标是否按下，处于可拖动状态
   const [focusePoint, setFocusePoint] = useState(false) // 鼠标在标记处是否按下，处于可拖动状态
   const [imageWidth, setImageWidth] = useState(0) // 图片宽度
@@ -468,7 +468,7 @@ function ImageMaker({
   return (
     <div
       ref={viewportDOM as React.RefObject<HTMLDivElement>}
-      className={styles.maker}
+      className={styles.marker}
       // ondragstart="return false;"
 
       onMouseLeave={handleMouseLeave}
@@ -493,4 +493,4 @@ function ImageMaker({
   )
 }
 
-export default ImageMaker
+export default ImageMarker
