@@ -1,0 +1,28 @@
+/* add css module styles here (optional) */
+.maker {
+  position: relative;
+  display: block;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: black;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.img {
+  cursor: move;
+  position: absolute;
+}
+
+.point {
+  z-index: 2;
+  cursor: move;
+  display: block;
+  position: absolute;
+}
+
+
+.point *{
+  pointer-events: none;
+}
