@@ -1,34 +1,55 @@
 import React, { useState, useEffect, useRef } from 'react'
 
 import styles from '../styles.module.css'
+
 export interface ImageMarkerProps {
-  width?: string // viewport 视口的宽度
-  height?: string // viewport 视口的高度
+  imgPos?: [number, number]//相对于视窗初始位置（小于1则百分比，大于1则距离）
+  imgPosCenter?: boolean //相对于中心设置初始位置
+  pointPos:[number, number]
+  width?: number // viewport 视口的宽度
+  height?: number // viewport 视口的高度
   minimum?: number // 缩放的最小尺寸【零点几】
   maximum?: number // 缩放的最大尺寸
   rate?: number // 缩放的速率
   src: string // 图片scr
   center?: boolean // 图片位置是否初始居中
-  contain?: boolean // 图片尺寸是否初始包含在视口范围内,
   cover?: boolean // 图片尺寸是否平铺显示
-  renderPoint?: React.ReactElement
+  renderPoint?: React.ReactElement//标注组件
+  imgWidth?: number //图片宽度
+  imgHeight?: number //图片高度
+  onChange?:Function//回调
 }
+
+export interface ImageMarkerChangeProps {
+  scale:number,
+  initialWidth:number,
+  initialHeight:number,
+  imgPosition:[number,number],
+  imgPositionCernt:[number,number],
+  pointPos:[number,number]
+}
+
 export interface WHProps {
   width: number
   height: number
 }
 
 function ImageMarker({
-  width = '600px',
-  height = '400px',
-  minimum = 0.8,
+  imgPos,
+  imgPosCenter,
+  pointPos,
+  imgWidth,
+  imgHeight,
+  width = 600,
+  height = 400,
+  minimum = 0.1,
   maximum = 8,
   rate = 10,
   src,
-  center = true,
-  contain = true,
+  center,
   cover,
-  renderPoint
+  renderPoint,
+  onChange
 }: ImageMarkerProps) {
   const [focuse, setFocuse] = useState(false) // 鼠标是否按下，处于可拖动状态
   const [focusePoint, setFocusePoint] = useState(false) // 鼠标在标记处是否按下，处于可拖动状态
@@ -54,7 +75,7 @@ function ImageMarker({
   // 参数改变时重新初始化图片
   useEffect(() => {
     initPicture()
-  }, [src, center, contain, cover, renderPoint])
+  }, [src, center, cover, renderPoint, imgWidth, imgHeight])
 
   useEffect(() => {
     const image = imgDOM.current
@@ -87,38 +108,82 @@ function ImageMarker({
     changePointPostion(currentPoint[0], currentPoint[1])
   }
 
-  const initViewport = (width: string, height: string) => {
+  useEffect(() => {
+    if(pointPos[0]>0&&pointPos[0]<1&&pointPos[1]>0&&pointPos[1]<1){
+       setStartPoint([pointPos[0],pointPos[1]])
+       setCurrentPoint([pointPos[0],pointPos[1]])
+    }
+   
+  }, [pointPos])
+
+  const initViewport = (width: number, height: number) => {
     const currentDiv = viewportDOM.current
     if (currentDiv) {
-      currentDiv.style.width = isNaN(+width) ? width : `${width}px`
-      currentDiv.style.height = isNaN(+height) ? height : `${height}px`
+      currentDiv.style.width = `${width}px`
+      currentDiv.style.height = `${height}px`
     }
+
   }
 
   const initPicture = () => {
     // 这块有个执行顺序
     // 必须是先确定尺寸，再确定位置
-    if (contain) {
+    if (imgWidth && imgHeight) { //如果设置了宽高则显示宽高大小的图片，如果没有则自动缩放到包含图片的宽高
+      setImageHeight(imgHeight)
+      setImageWidth(imgWidth)
+      initPosition({ width: imgWidth, height: imgHeight })
+
+    } else {
       changeToContain()
     }
 
-    // else if (cover) {
-    //     changeToCover(callback)
-    // } else {
-    //     this._getImageOriginSize(src).then(({ width: imageWidth, height: imageHeight }) => {
-    //         this.setState({
-    //             scale: 1,
-    //             imageWidth,
-    //             imageHeight
-    //         }, callback)
-    //     }).catch((e: any) => {
-    //         console.error(e)
-    //     })
-    // }
+  }
+
+
+  /**
+   * 初始化时修改图片位置
+   */
+  const initPosition = (w_h: WHProps) => {
+    if (imgPos) {
+      const [x, y] = imgPos
+      setAllocatePos(x, y, w_h)
+    } else {
+      center ? changeToCenter(w_h) : changeToBasePoint()
+    }
+  }
+
+   /**
+   * 设置图片位置
+   */
+  const setAllocatePos = (x: number, y: number, w_h: WHProps) => {
+    if ((!imgPosCenter && (x < -w_h.width || y < -w_h.height || x > width || y > height)) || (imgPosCenter && (x > w_h.width / 2 + width || x < -w_h.width / 2 || y > w_h.height / 2 + height || y < -w_h.height / 2))) { //判断图片是否超出
+      center ? changeToCenter(w_h) : changeToBasePoint()
+      return
+    } else {
+      let postion
+      if(imgPosCenter){
+
+        postion = [
+          x < 1 && x > -1 ? width * x -  w_h.width / 2: x -  w_h.width / 2,
+          y < 1 && y > -1 ? height * y-w_h.height / 2 : y-w_h.height/ 2
+        ]
+        console.log(postion, w_h.width,w_h.height)
+      }else{
+        postion = [
+          x < 1 && x > -1 ? width * x : x,
+          y < 1 && y > -1 ? height * y : y
+        ]
+      }
+     
+      setCurrentImage(postion)
+      setStartImage(postion)
+      changePosition(postion[0], postion[1])
+    }
   }
 
   /**
    * 设置图片位置为 center
+   * @param wh {width，height}图片宽高
    */
   const changeToCenter = (wh: WHProps) => {
     const currentDiv = viewportDOM.current
@@ -143,11 +208,11 @@ function ImageMarker({
    * 设置图片位置为基准点位置
    * 基准点位置，基于视口: top: 0 && left: 0
    */
-  // const changeToBasePoint = () => {
-  //     setCurrentImage([0, 0])
-  //     setStartImage([0, 0])
-  //     changePosition(0,0)
-  // }
+  const changeToBasePoint = () => {
+    setCurrentImage([0, 0])
+    setStartImage([0, 0])
+    changePosition(0, 0)
+  }
   /**
    * 设置图片尺寸为 contain
    * @param src {String} 需要操作的图片的 src
@@ -161,7 +226,7 @@ function ImageMarker({
         setImageHeight(imageWH.height)
         setImageWidth(imageWH.width)
         changeSize(imageWH.width, imageWH.height)
-        changeToCenter(imageWH)
+        initPosition(imageWH)
         // const callback = center ? changeToCenter(imageWH) : changeToBasePoint
       })
       .catch((e) => {
@@ -384,12 +449,20 @@ function ImageMarker({
 
           setCurrentPoint([startPoint[0] + w, startPoint[1] + y])
           changePointPostion(startPoint[0] + w, startPoint[1] + y)
+          onChange&&onChange({scale:scale,initialWidth:imageWidth,initialHeight:imageHeight,imgPosition:currentImage,imgPositionCernt:[currentImage[0] + imageWidth * scale,currentImage[1]+ imageHeight * scale],pointPos:[startPoint[0] + w, startPoint[1] + y]})
         } else {
           setCurrentImage([startImage[0] + diffX, startImage[1] + diffY])
           changePosition(startImage[0] + diffX, startImage[1] + diffY)
+
+          onChange&&onChange({scale:scale,initialWidth:imageWidth,initialHeight:imageHeight,imgPosition:[startImage[0] + diffX, startImage[1] + diffY],imgPositionCernt:[startImage[0] + diffX + imageWidth * scale/2,startImage[1] + diffY + imageHeight * scale/2],pointPos:[startPoint[0], startPoint[1]]})
         }
       }
+
+
+     
     }
+
+
   }
   // 鼠标抬起
   const handleMouseUp = () => {
@@ -429,8 +502,8 @@ function ImageMarker({
         nextScale <= minimum
           ? minimum
           : nextScale >= maximum
-          ? maximum
-          : nextScale
+            ? maximum
+            : nextScale
       const currentImageWidth = nextScale * imageWidth
       const currentImageHeight = nextScale * imageHeight
 
@@ -453,7 +526,14 @@ function ImageMarker({
           currentImage[0] + (mPostion.left - newLeft),
           currentImage[1] + (mPostion.top - newTop)
         )
+
+        onChange&&onChange({scale:nextScale,initialWidth:imageWidth,initialHeight:imageHeight,imgPosition:[
+          currentImage[0] + (mPostion.left - newLeft),
+          currentImage[1] + (mPostion.top - newTop)
+        ],imgPositionCernt:[currentImage[0] + (mPostion.left - newLeft) + imageWidth * scale/2,currentImage[1] + (mPostion.top - newTop)+ imageHeight * scale/2],pointPos:startPoint})
       }
+
+
 
       // this.setState({
       //     scale: nextScale,
