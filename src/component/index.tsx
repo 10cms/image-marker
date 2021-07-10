@@ -109,10 +109,11 @@ function ImageMarker({
   }
 
   useEffect(() => {
-    if(pointPos[0]>0&&pointPos[0]<1&&pointPos[1]>0&&pointPos[1]<1){
-       setStartPoint([pointPos[0],pointPos[1]])
-       setCurrentPoint([pointPos[0],pointPos[1]])
-    }
+    // if(pointPos[0]>0 &&pointPos[0]<1&&pointPos[1]>0&&pointPos[1]<1){
+       
+    // }
+    setStartPoint([pointPos[0],pointPos[1]])
+    setCurrentPoint([pointPos[0],pointPos[1]])
    
   }, [pointPos])
 
